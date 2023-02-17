@@ -32,7 +32,16 @@ const typeDefs = `#graphql
 // Resolvers
 const resolvers = {
   Query: {
-    folders: () => {return fakeData.folders}
+    folders: () => {
+      return fakeData.folders;
+    },
+  },
+  Folder: {
+    author: (parent, args) => {
+      console.log({ parent, args });
+      const authorId = parent.authorId;
+      return fakeData.authors.find((author) => author.id === authorId);
+    },
   },
 };
 
