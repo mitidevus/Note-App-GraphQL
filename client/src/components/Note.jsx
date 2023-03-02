@@ -2,12 +2,10 @@ import { ContentState, convertToRaw, convertFromHTML, EditorState } from "draft-
 import draftToHtml from "draftjs-to-html";
 import React, { useEffect, useState } from "react";
 import { Editor } from "react-draft-wysiwyg";
+import { useLoaderData } from "react-router-dom";
 
 export default function Note() {
-    const note = {
-        id: "999",
-        content: "<p>This is new note</p>",
-    };
+    const { note } = useLoaderData();
 
     const [editorState, setEditorState] = useState(() => {
         return EditorState.createEmpty();

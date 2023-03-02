@@ -6,6 +6,8 @@ import ProtectedRoute from "./ProtectedRoute";
 import ErrorPage from "../pages/ErrorPage";
 import NoteList from "../components/NoteList";
 import Note from "../components/Note";
+import { noteLoader, notesLoader } from "../utils/noteUtils";
+import { foldersLoader } from "../utils/folderUtils";
 
 const AuthLayout = () => {
     return (
@@ -30,41 +32,18 @@ export default createBrowserRouter([
                     {
                         element: <Home />,
                         path: "/",
-                        loader: async () => {
-                            // Loader là khi một component được render ra màn hình, loader sẽ được thực thi
-                            // Lấy dữ liệu phía back-end về và trả về cho component
-                            // Sau đó component mới được render ra màn hình
-                            const query = `query Query {
-                                folders {
-                                    id
-                                    name
-                                    createdAt
-                                }
-                            }`;
-
-                            const res = await fetch("http://localhost:4000/graphql", {
-                                method: "POST",
-                                headers: {
-                                    "Content-Type": "application/json",
-                                    Accept: "application/json",
-                                },
-                                body: JSON.stringify({
-                                    query,
-                                }),
-                            });
-
-                            const { data } = await res.json();
-                            console.log(data);
-                            return data;
-                        },
+                        loader: foldersLoader,
                         children: [
                             {
                                 element: <NoteList />,
                                 path: `folders/:folderId`,
+                                loader: notesLoader,
                                 children: [
                                     {
                                         element: <Note />,
                                         path: `notes/:noteId`,
+                                        // Vẫn có thể lấy dữ liệu từ loader ở trên nhưng do thực hành làm quen react-router-dom nên tạo loader mới
+                                        loader: noteLoader,
                                     },
                                 ],
                             },

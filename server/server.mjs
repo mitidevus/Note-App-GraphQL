@@ -4,56 +4,40 @@ import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHt
 import bodyParser from "body-parser";
 import express from "express";
 import http from "http";
-import cors from "cors";
+import cors from "cors"; // Thư viện cho phép truy cập từ các domain khác
 import fakeData from "./fakeData/index.js";
+import mongoose from "mongoose";
+
+import "dotenv/config";
 
 const app = express();
 const httpServer = http.createServer(app);
 
-// Schema
-const typeDefs = `#graphql
-  type Folder {
-    id: String,
-    name: String,
-    createdAt: String,
-    author: Author,
-  }
+import { resolvers } from "./resolvers/index.js";
+import { typeDefs } from "./schemas/index.js";
 
-  type Author {
-    id: String,
-    name: String,
-  }
-
-  type Query {
-    folders: [Folder]
-  }
-`;
-
-// Resolvers
-const resolvers = {
-  Query: {
-    folders: () => {
-      return fakeData.folders;
-    },
-  },
-  Folder: {
-    author: (parent, args) => {
-      console.log({ parent, args });
-      const authorId = parent.authorId;
-      return fakeData.authors.find((author) => author.id === authorId);
-    },
-  },
-};
+// Connect to Database
+const URI = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.nuflrw8.mongodb.net/?retryWrites=true&w=majority`;
+const PORT = process.env.PORT || 4000;
 
 const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-  plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+    typeDefs,
+    resolvers,
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
 });
 
 await server.start();
 
-app.use(cors(), bodyParser.json(), expressMiddleware(server));
+app.use(cors(), bodyParser.json(), expressMiddleware(server)); // Thêm các middleware vào express, expressMiddleware là middleware của Apollo Server
 
-await new Promise((resolve) => httpServer.listen({ port: 4000 }, resolve));
-console.log("Server ready at http://localhost:4000");
+mongoose.set("strictQuery", true);
+mongoose
+    .connect(URI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+    })
+    .then(async () => {
+        console.log("Connected to database");
+        await new Promise((resolve) => httpServer.listen({ port: PORT }, resolve));
+        console.log("Server ready at http://localhost:4000");
+    });
