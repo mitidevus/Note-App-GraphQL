@@ -54,7 +54,7 @@ export default function NoteList() {
                     </List>
                 </Grid>
                 <Grid item xs={8}>
-                    <Outlet />
+                    <Outlet /> {/* This is where the Note component will be rendered */}
                 </Grid>
             </Grid>
         </>

@@ -22,7 +22,7 @@ export default function Home() {
                     <FolderList folders={folders}></FolderList>
                 </Grid>
                 <Grid item xs={9} style={{ height: "100%" }}>
-                    <Outlet />
+                    <Outlet /> {/* This is where the NoteList and Note components will be rendered */}
                 </Grid>
             </Grid>
         </>
