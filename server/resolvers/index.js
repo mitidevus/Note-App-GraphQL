@@ -9,7 +9,7 @@ export const resolvers = {
         folders: async (parent, args, context) => {
             const folders = await FolderModel.find({
                 authorId: context.uid,
-            });
+            }).sort({updatedAt: 'desc'});
             console.log({ context });
             return folders;
         },
@@ -31,9 +31,10 @@ export const resolvers = {
     },
     Folder: {
         // Truy vấn đến field author của Folder trong schema
-        author: (parent, args) => {
+        author: async (parent, args) => {
             const authorId = parent.authorId; // Dùng parent để lấy giá trị của field authorId của Folder
-            return fakeData.authors.find((author) => author.id === authorId);
+            const author = await AuthorModel.findOne({ uid: authorId });
+            return author;
         },
         // Truy vấn đến field notes của Folder trong schema
         notes: (parent, args) => {
@@ -43,8 +44,8 @@ export const resolvers = {
     },
     // Mutation là các thao tác thêm, sửa, xóa
     Mutation: {
-        addFolder: async (parent, args) => {
-            const newFolder = new FolderModel({ ...args, authorId: "123" });
+        addFolder: async (parent, args, context) => {
+            const newFolder = new FolderModel({ ...args, authorId: context.uid });
             await newFolder.save();
             return newFolder;
         },

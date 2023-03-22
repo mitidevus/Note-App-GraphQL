@@ -3,6 +3,7 @@ import { Box } from "@mui/system";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
+import NewFolder from "./NewFolder";
 
 export default function FolderList({ folders }) {
     const { folderId } = useParams();
@@ -19,8 +20,9 @@ export default function FolderList({ folders }) {
                 overflowY: "auto", // Nếu nội dung quá dài thì sẽ xuất hiện thanh scroll
             }}
             subheader={
-                <Box>
+                <Box sx={{ display: 'flex', alignItem: 'center', justifyContent: 'space-between'}}>
                     <Typography sx={{ fontWeight: "bold", color: "white" }}>Folders</Typography>
+                    <NewFolder />
                 </Box>
             }
         >
@@ -34,7 +36,7 @@ export default function FolderList({ folders }) {
                     >
                         <Card sx={{ mb: "5px", backgroundColor: id === activeFolderId ? "rgb(255 211 140)" : null }}>
                             <CardContent sx={{ "&:last-child": { pb: "10px" }, padding: "10px" }}>
-                                <Typography sx={{fontSize: 16, fontWeight: "bold"}}>{name}</Typography>
+                                <Typography sx={{ fontSize: 16, fontWeight: "bold" }}>{name}</Typography>
                             </CardContent>
                         </Card>
                     </Link>
