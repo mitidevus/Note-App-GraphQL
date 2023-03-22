@@ -1,18 +1,22 @@
-// Resolvers
+// Resolvers là các hàm thực thi các truy vấn đến các field trong schema
 // Mỗi resolver trong GraphQL có 2 tham số: parent (parent là kết quả trả về của resolver trước đó) và args (args truyền từ client)
 import fakeData from "../fakeData/index.js";
-import { FolderModel } from "../models/index.js";
+import { AuthorModel, FolderModel } from "../models/index.js";
 
 export const resolvers = {
     Query: {
         // Truy vấn đến field folders của Query trong schema
-        folders: async () => {
-            const folders = await FolderModel.find();
+        folders: async (parent, args, context) => {
+            const folders = await FolderModel.find({
+                authorId: context.uid,
+            });
+            console.log({ context });
             return folders;
         },
         // Truy vấn đến field folder của Query trong schema
         folder: async (parent, args) => {
             const folderId = args.folderId; // Dùng args để lấy giá trị của tham số folderId truyền từ client
+            console.log({ folderId });
             const foundFolder = await FolderModel.findOne({
                 _id: folderId,
             });
@@ -21,6 +25,7 @@ export const resolvers = {
         // Truy vấn đến field note của Query trong schema
         note: (parent, args) => {
             const noteId = args.noteId;
+            console.log({ noteId });
             return fakeData.notes.find((note) => note.id === noteId);
         },
     },
@@ -42,6 +47,17 @@ export const resolvers = {
             const newFolder = new FolderModel({ ...args, authorId: "123" });
             await newFolder.save();
             return newFolder;
+        },
+        register: async (parent, args) => {
+            const foundUser = await AuthorModel.findOne({ uid: args.uid });
+
+            if (!foundUser) {
+                const newUser = new AuthorModel(args);
+                await newUser.save();
+                return newUser;
+            }
+
+            return foundUser;
         },
     },
 };
