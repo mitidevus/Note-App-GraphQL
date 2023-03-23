@@ -1,7 +1,7 @@
 // Resolvers là các hàm thực thi các truy vấn đến các field trong schema
 // Mỗi resolver trong GraphQL có 2 tham số: parent (parent là kết quả trả về của resolver trước đó) và args (args truyền từ client)
 import fakeData from "../fakeData/index.js";
-import { AuthorModel, FolderModel } from "../models/index.js";
+import { AuthorModel, FolderModel, NoteModel } from "../models/index.js";
 
 export const resolvers = {
     Query: {
@@ -9,7 +9,7 @@ export const resolvers = {
         folders: async (parent, args, context) => {
             const folders = await FolderModel.find({
                 authorId: context.uid,
-            }).sort({updatedAt: 'desc'});
+            }).sort({ updatedAt: "desc" });
             console.log({ context });
             return folders;
         },
@@ -17,16 +17,14 @@ export const resolvers = {
         folder: async (parent, args) => {
             const folderId = args.folderId; // Dùng args để lấy giá trị của tham số folderId truyền từ client
             console.log({ folderId });
-            const foundFolder = await FolderModel.findOne({
-                _id: folderId,
-            });
+            const foundFolder = await FolderModel.findById(folderId);
             return foundFolder; // Là parent của resolver Folder
         },
         // Truy vấn đến field note của Query trong schema
-        note: (parent, args) => {
+        note: async (parent, args) => {
             const noteId = args.noteId;
-            console.log({ noteId });
-            return fakeData.notes.find((note) => note.id === noteId);
+            const note = await NoteModel.findById(noteId);
+            return note;
         },
     },
     Folder: {
@@ -37,13 +35,19 @@ export const resolvers = {
             return author;
         },
         // Truy vấn đến field notes của Folder trong schema
-        notes: (parent, args) => {
-            const folderId = parent.id;
-            return fakeData.notes.filter((note) => note.folderId === folderId);
+        notes: async (parent, args) => {
+            const notes = await NoteModel.find({ folderId: parent.id }).sort({ updatedAt: "desc" });
+            console.log({ notes });
+            return notes;
         },
     },
     // Mutation là các thao tác thêm, sửa, xóa
     Mutation: {
+        addNote: async (parent, args) => {
+            const newNote = new NoteModel(args);
+            await newNote.save();
+            return newNote;
+        },
         addFolder: async (parent, args, context) => {
             const newFolder = new FolderModel({ ...args, authorId: context.uid });
             await newFolder.save();
