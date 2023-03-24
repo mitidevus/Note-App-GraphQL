@@ -1,9 +1,21 @@
 // Resolvers là các hàm thực thi các truy vấn đến các field trong schema
 // Mỗi resolver trong GraphQL có 2 tham số: parent (parent là kết quả trả về của resolver trước đó) và args (args truyền từ client)
-import fakeData from "../fakeData/index.js";
 import { AuthorModel, FolderModel, NoteModel } from "../models/index.js";
+import { GraphQLScalarType } from "graphql";
 
 export const resolvers = {
+    // Tạo kiểu dữ liệu Date
+    Date: new GraphQLScalarType({
+        name: "Date",
+        parseValue(value) {
+            // Giá trị truyền từ client, ví dụ: "2021-08-01T08:00:00.000Z"
+            return new Date(value);
+        },
+        serialize(value) {
+            // Giá trị trả về cho client, ví dụ: "2021-08-01T08:00:00.000Z"
+            return value.toISOString();
+        },
+    }),
     Query: {
         // Truy vấn đến field folders của Query trong schema
         folders: async (parent, args, context) => {

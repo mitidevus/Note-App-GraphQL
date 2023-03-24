@@ -1,5 +1,7 @@
 // Schema định nghĩa các trường của document trong collection
 export const typeDefs = `#graphql
+  scalar Date
+
   type Folder {
     id: String!,
     name: String,
@@ -9,7 +11,8 @@ export const typeDefs = `#graphql
   }
   type Note {
     id: String!,
-    content: String
+    content: String,
+    updatedAt: Date
   }
   type Author {
     uid: String!,
@@ -27,4 +30,6 @@ export const typeDefs = `#graphql
     register(uid: String!, name: String!): Author
   }
 `;
+// GraphQL đọc schema, sau đó build nên dữ liệu 
 // String! là kiểu dữ liệu bắt buộc phải có
+// Tạo kiểu dữ liệu custom là dùng scalar
